@@ -1,0 +1,33 @@
+sitemap huset label="Huset"
+{
+    Frame label="Huset" {
+		Group item=gGF label="Første etasje" icon="groundfloor"
+		Group item=gFirstFloor label="Andre etasje" icon="firstfloor"
+		Group item=gBasement label="Kjeller" icon="cellar"
+		Group item=gOutdoor label="Ute" icon="garden"
+    }
+    Frame {
+		Group item=Energy
+	}
+        
+	Frame label="Date" {
+		Text item=Date
+		Text item=OutdoorTemperature {
+			Frame {
+				Switch item=Temperature_Chart_Period label="Periode" mappings=[0="Time", 1="Dag", 2="Uke"] icon="temperature"
+				Chart item=Temperature_Chart period=h refresh=300 visibility=[Temperature_Chart_Period==0, Temperature_Chart_Period=="Uninitialized"]
+				Chart item=Temperature_Chart period=D refresh=1800 visibility=[Temperature_Chart_Period==1]
+				Chart item=Temperature_Chart period=W refresh=3600 visibility=[Temperature_Chart_Period==2]
+			}
+		} 
+	}
+
+	Frame label="Presence" {
+		Group item=Home label="Hjemme  [(%d)]" icon="present"
+		Group item=proximity label="Network health [(%d)]" icon="present"
+	}
+	
+	Frame label="Status" {
+		Group item=gBattery label="Batteri" icon="energy"
+	}
+}

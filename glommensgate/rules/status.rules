@@ -1,0 +1,56 @@
+import org.openhab.core.library.types.*
+import org.openhab.core.persistence.*
+import org.openhab.model.script.actions.*
+
+rule "Check garage doors when clicking button"
+	when
+		Item right_double_switch received command ON	
+	then
+		postUpdate(push_message_text, "Garasjeport - LEAF: " + garage_door_1.state.toString + ", Mondeo: " + garage_door_2.state.toString)
+end
+
+rule "Leaving house"
+	when
+		Item right_double_switch received command OFF	
+	then
+		sendCommand(Heating, OFF)
+		sendCommand(kontor_panelovn, OFF)
+		sendCommand(guest_home, OFF)
+		sendCommand(Home, OFF)
+		sendCommand(light, OFF)
+		if (OutdoorTemperature.state instanceof DecimalType) {
+			pushover("God tur ut i " + OutdoorTemperature.state.format("%.1f") + " °C")
+		}
+end
+
+rule "Alarm is being armed"
+	when
+		Item router_wlan changed from ON to OFF
+	then
+		if (OutdoorTemperature.state instanceof DecimalType) {
+			pushover("Du dro kl: " + now.getHourOfDay + ":" + now.getMinuteOfHour + ", Akkurat nå er det " + OutdoorTemperature.state.format("%.1f") + " °C ute")
+		}
+		sendCommand(guest_home, OFF)
+		sendCommand(Home, OFF)
+		sendCommand(light, OFF)
+end
+
+rule "Alarm is being disarmed"
+	when
+		Item router_wlan changed from OFF to ON
+	then
+		if( (OutdoorTemperature.state instanceof DecimalType) && (OutdoorTemperature.state instanceof DecimalType) ){
+			pushover("Velkommen hjem! Det er akkurat nå " + OutdoorTemperature.state.format("%.1f") + " °C ute, og " + LivingRoomTemperature.state.format("%.1f") + " °C i stua")
+		}
+		sendCommand(guest_home, ON)
+end
+
+rule "When text is changes, send a push message"
+	when
+		Item push_message_text changed
+	then
+		logInfo('org.openhab', 'message text is: ' + push_message_text.state)
+		try {
+				callScript('pushMessages')
+		} catch (org.openhab.core.scriptengine.ScriptExecutionException e) {}
+end
