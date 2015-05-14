@@ -2,7 +2,7 @@ glommensgate-openhab-config
 ===========================
 
 My openhab config files. For my home.
-
+Test
 My playground for my home automasjon system.
 
 Overview of products I have: not all in use.
